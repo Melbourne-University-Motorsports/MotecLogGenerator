@@ -5,7 +5,6 @@ import numpy as np
 from ldparser.ldparser import ldData
 
 def ld_to_resampled_csv(ld_filepath, csv_output_path):
-    # 1. Load the MoTeC file using the ldparser's internal logic
     print(f"Reading MoTeC file: {ld_filepath}")
     ld_log = ldData.fromfile(ld_filepath) #
     
@@ -13,7 +12,7 @@ def ld_to_resampled_csv(ld_filepath, csv_output_path):
     max_freq = 0
     master_channel_name = None
 
-    # 2. Extract data and find the highest sample rate
+    # Extract data and find the highest sample rate
     for chan in ld_log.channs: #
         name = chan.name
         freq = chan.freq #
@@ -29,16 +28,10 @@ def ld_to_resampled_csv(ld_filepath, csv_output_path):
 
     print(f"Resampling all channels to {max_freq}Hz (based on '{master_channel_name}')")
     print(ld_log.head)
-    # 3. Use Pandas to align and interpolate
-    # Creating the DataFrame automatically aligns data by the 'time' index
     df = pd.DataFrame(channels_dict)
     
     # Sort index to ensure temporal continuity for interpolation
     df = df.sort_index()
-    
-    # Interpolate missing values created by lower-frequency channels
-    # 'index' method ensures values are estimated based on their timestamp
-    #df_interpolated = df.interpolate(method='index')
     
     # Reindex to the master timebase (the timestamps of the fastest channel)
     master_time = channels_dict[master_channel_name].index
